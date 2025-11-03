@@ -43,8 +43,17 @@ app.config['UPLOAD_FOLDER'] = 'static/uploads'
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB max
 app.config['ALLOWED_EXTENSIONS'] = {'pdf', 'jpg', 'jpeg', 'png'}
 
-# Configurar OpenAI
-client = OpenAI()
+# Configurar OpenAI (lazy loading)
+client = None
+
+def get_openai_client():
+    global client
+    if client is None:
+        api_key = os.environ.get('OPENAI_API_KEY')
+        if not api_key:
+            raise ValueError("OPENAI_API_KEY não configurada!")
+        client = OpenAI(api_key=api_key)
+    return client
 
 # Função para obter conexão com banco
 def get_db_connection():
@@ -198,7 +207,8 @@ def processar_documento_gpt4(caminho_pdf, prompt):
             }
         })
     
-    response = client.chat.completions.create(
+    openai_client = get_openai_client()
+    response = openai_client.chat.completions.create(
         model="gpt-4o-mini",
         messages=messages,
         max_tokens=4096
