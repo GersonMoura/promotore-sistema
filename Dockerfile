@@ -19,12 +19,9 @@ COPY . .
 # Criar pasta de uploads
 RUN mkdir -p static/uploads
 
-# Tornar script executável
-RUN chmod +x start.sh
-
 # Expor porta 8080
 EXPOSE 8080
 
-# Usar script de inicialização
-CMD ["./start.sh"]
+# Usar bash para executar start.sh
+CMD ["bash", "start.sh"]
 
